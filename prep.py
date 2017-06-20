@@ -24,8 +24,17 @@ def _validate_file(path):
     pass
 
 def _dummy(column):
-    """Returns columns of dummy variables from a column of categories"""
-    pass
+    """Returns columns of dummy variables from a column of categories
+
+    The first row of the output matrix will be the value for each dummy
+    category.
+    """
+    categories = sorted(list(set(column)))
+    dcols = [[0 for i in range(len(categories))] for i in range(len(column))]
+    for i, val in enumerate(column):
+        dcols[i][categories.index(val)] = 1
+    dcols.insert(0, categories)
+    return dcols
 
 def _normalize(column, min_val=None, max_val=None):
     """Normalizes a column of data

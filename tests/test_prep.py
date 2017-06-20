@@ -7,7 +7,7 @@ import random
 
 import prep
 
-class TestCase(TestCase):
+class TestNormalize(TestCase):
 
     def test_normalize_range(self):
         """Normalize returns values between 1 and 0"""
@@ -41,6 +41,22 @@ class TestCase(TestCase):
         col = [23, 86, 24, 97, 45]
         ncol = prep._normalize(col, min_val=0, max_val=100)
         self.assertEqual(ncol, [.23, .86, .24, .97, .45])
+
+
+class TestDummy(TestCase):
+
+    def test_dummy(self):
+        col = ['m', 'm', 'f', 'f', 'm', 't']
+        dcol = prep._dummy(col)
+        expected_result = [['f', 'm', 't'],
+                           [0, 1, 0],
+                           [0, 1, 0],
+                           [1, 0, 0],
+                           [1, 0, 0],
+                           [0, 1, 0],
+                           [0, 0, 1]]
+        self.assertEqual(dcol, expected_result)
+        
 
 if __name__ == '__main__':
 	main()
