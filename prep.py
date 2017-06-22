@@ -39,19 +39,20 @@ def _dummy(dataFrame, column):
         dataFrame[category] = np.where(dataFrame[column] == category, 1, 0)
     return dataFrame
 
-def _normalize(column, min_val=None, max_val=None):
+def _normalize(dataFrame, column, min_val=None, max_val=None):
     """Normalizes a column of data
 
     If no min and max values are given, then the data is normalized based off
     of the min and max from the sample data.
     """
     if min_val is None:
-        min_val = min(column)
+        min_val = dataFrame[column].min()
     if max_val is None:
-        max_val = max(column)
-    column = [float(val) for val in column]
-    column = [(val - min_val) / (max_val - min_val) for val in column]
-    return column
+        max_val = dataFrame[column].max()
+    dataFrame['n({})'.format(column)] = (
+        (dataFrame[column] - min_val) / (max_val - min_val)
+        )
+    return dataFrame
 
 def parse_data(path):
     """Cleans and prepares the data to be used in the  model"""

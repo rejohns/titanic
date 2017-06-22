@@ -12,36 +12,57 @@ class TestNormalize(TestCase):
 
     def test_normalize_range(self):
         """Normalize returns values between 1 and 0"""
-        col = [random.uniform(-1000000, 1000000) for i in range(1000)]
-        ncol = prep._normalize(col)
-        if min(ncol) < 0:
+        data = {'vals': [random.uniform(-1000000, 1000000) for i in range(1000)]}
+        df = pd.DataFrame(data, columns=['vals'])
+        df = prep._normalize(df, 'vals')
+        if df['n(vals)'].min() < 0:
             self.fail("Normalized column returned a value below 0.")
-        if max(ncol) > 1:
+        if df['n(vals)'].max() > 1:
             self.fail("Normalized column returned a value above 1.")
 
     def test_normalize_vals(self):
         """Normalize a simple column"""
-        col = [i for i in range(11)]
-        ncol = prep._normalize(col)
-        self.assertEqual(ncol, [0, .1, .2, .3, .4, .5, .6, .7, .8, .9, 1])
+        data = {'vals': [i for i in range(11)]}
+        df = pd.DataFrame(data, columns=['vals'])
+        df = prep._normalize(df, 'vals')
+        expected_data = {'vals': [i for i in range(11)],
+                         'n(vals)': [0, .1, .2, .3, .4, .5, .6, .7, .8, .9, 1]}
+        expected_result = pd.DataFrame(expected_data,
+                                       columns=['vals', 'n(vals)'])
+        self.assertTrue(df.equals(expected_result))
 
     def test_minval_normalize(self):
         """Normalize with a minimum value argument"""
-        col = [5, 6, 7, 8, 10]
-        ncol = prep._normalize(col, min_val=0)
-        self.assertEqual(ncol, [.5, .6, .7, .8, 1])
+        data = {'vals': [5, 6, 7, 8, 10]}
+        df = pd.DataFrame(data, columns=['vals'])
+        df = prep._normalize(df, 'vals', min_val=0)
+        expected_data = {'vals': [5, 6, 7, 8, 10],
+                         'n(vals)': [.5, .6, .7, .8, 1]}
+        expected_result = pd.DataFrame(expected_data,
+                                       columns=['vals', 'n(vals)'])
+        self.assertTrue(df.equals(expected_result))
 
     def test_maxval_normalize(self):
         """Normalize with a maximum value argument"""
-        col = [0, 1, 2, 6, 3]
-        ncol = prep._normalize(col, max_val=10)
-        self.assertEqual(ncol, [0, .1, .2, .6, .3])
+        data = {'vals': [0, 1, 2, 6, 3]}
+        df = pd.DataFrame(data, columns=['vals'])
+        df = prep._normalize(df, 'vals', max_val=10)
+        expected_data = {'vals': [0, 1, 2, 6, 3],
+                         'n(vals)': [0, .1, .2, .6, .3]}
+        expected_result = pd.DataFrame(expected_data,
+                                       columns=['vals', 'n(vals)'])
+        self.assertTrue(df.equals(expected_result))
 
     def test_minval_maxval_normalize(self):
         """Normalize with a minimum and maximum value argument"""
-        col = [23, 86, 24, 97, 45]
-        ncol = prep._normalize(col, min_val=0, max_val=100)
-        self.assertEqual(ncol, [.23, .86, .24, .97, .45])
+        data = {'vals': [23, 86, 24, 97, 45]}
+        df = pd.DataFrame(data, columns=['vals'])
+        df = prep._normalize(df, 'vals', min_val=0, max_val=100)
+        expected_data = {'vals': [23, 86, 24, 97, 45],
+                         'n(vals)': [.23, .86, .24, .97, .45]}
+        expected_result = pd.DataFrame(expected_data,
+                                       columns=['vals', 'n(vals)'])
+        self.assertTrue(df.equals(expected_result))
 
 
 class TestDummy(TestCase):
@@ -57,7 +78,7 @@ class TestDummy(TestCase):
                          't': [0, 0, 0, 0, 0, 1]}
         expected_result = pd.DataFrame(expected_data,
                                        columns=['sex', 'f', 'm', 't'])
-        self.assertEqual(df.equals(expected_result), True)
+        self.assertTrue(df.equals(expected_result))
 
     def test_invalid_column(self):
         """Error triggered before overwriting a column"""
