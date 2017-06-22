@@ -18,23 +18,26 @@ into two dummy variables.
 If the `survival` data is present (for training), then this will be output as a
 second vector.  Any non-relevant data columns will not be output.
 """
+import pandas as pd
+import numpy as np
 
 def _validate_file(path):
     """Validate the format of the input data"""
     pass
 
-def _dummy(column):
-    """Returns columns of dummy variables from a column of categories
+def _dummy(dataFrame, column):
+    """Returns a data fram with dummy variables from a column of categories
 
     The first row of the output matrix will be the value for each dummy
     category.
     """
-    categories = sorted(list(set(column)))
-    dcols = [[0 for i in range(len(categories))] for i in range(len(column))]
-    for i, val in enumerate(column):
-        dcols[i][categories.index(val)] = 1
-    dcols.insert(0, categories)
-    return dcols
+    categories = sorted(list(set(dataFrame[column])))
+    for category in categories:
+        if category in dataFrame.columns:
+            raise KeyError("A column for value {} already exists."
+                           .format(category))
+        dataFrame[category] = np.where(dataFrame[column] == category, 1, 0)
+    return dataFrame
 
 def _normalize(column, min_val=None, max_val=None):
     """Normalizes a column of data

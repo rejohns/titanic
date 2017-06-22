@@ -4,6 +4,7 @@ Tests the functions from prep.py
 """
 from unittest import TestCase, main
 import random
+import pandas as pd
 
 import prep
 
@@ -46,16 +47,29 @@ class TestNormalize(TestCase):
 class TestDummy(TestCase):
 
     def test_dummy(self):
-        col = ['m', 'm', 'f', 'f', 'm', 't']
-        dcol = prep._dummy(col)
-        expected_result = [['f', 'm', 't'],
-                           [0, 1, 0],
-                           [0, 1, 0],
-                           [1, 0, 0],
-                           [1, 0, 0],
-                           [0, 1, 0],
-                           [0, 0, 1]]
-        self.assertEqual(dcol, expected_result)
+        """Dummy variables successfullly created"""
+        data = {'sex': ['m', 'm', 'f', 'f', 'm', 't']}
+        df = pd.DataFrame(data, columns=['sex'])
+        df = prep._dummy(df, 'sex')
+        expected_data = {'sex': ['m', 'm', 'f', 'f', 'm', 't'],
+                         'f': [0, 0, 1, 1, 0, 0],
+                         'm': [1, 1, 0, 0, 1, 0],
+                         't': [0, 0, 0, 0, 0, 1]}
+        expected_result = pd.DataFrame(expected_data,
+                                       columns=['sex', 'f', 'm', 't'])
+        self.assertEqual(df.equals(expected_result), True)
+
+    def test_invalid_column(self):
+        """Error triggered before overwriting a column"""
+        data = {'sex': ['m', 'm', 'f', 'f', 'm', 't'],
+                'm': [1, 1, 0, 0, 1, 0]}
+        df = pd.DataFrame(data, columns=['sex', 'm'])
+        try:
+            df = prep._dummy(df, 'sex')
+        except KeyError as detail:
+            self.assertIn("A column for value m already exists.", str(detail))
+        else:
+            self.fail("No error was raised")
         
 
 if __name__ == '__main__':
